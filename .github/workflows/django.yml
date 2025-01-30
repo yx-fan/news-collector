@@ -37,5 +37,4 @@ jobs:
         python manage.py migrate  # Apply migrations if necessary
     - name: Run Tests
       run: |
-        cd finance_news  # Navigate to your Django project folder
         python manage.py test  # Run Django tests

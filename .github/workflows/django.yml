@@ -8,12 +8,18 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
         python-version: [3.11]
+
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: --health-cmd "echo 'exit 0'" --health-interval 10s --health-timeout 5s --health-retries 3
 
     steps:
     - uses: actions/checkout@v4  # Checkout the code from the repository
@@ -27,7 +33,6 @@ jobs:
         pip install -r requirements.txt
     - name: Set up Django environment
       run: |
-        # Make sure Django is running from the correct directory
         cd finance_news  # Navigate to your Django project folder
         python manage.py migrate  # Apply migrations if necessary
     - name: Run Tests

@@ -1,0 +1,32 @@
+# Ignore file for Django projects
+db.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.swp
+*.swo
+
+# Python migration files
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Virtual environment
+news-collector-env/
+venv/
+.env
+*.venv
+
+# Docker Compose
+.dockerignore
+docker-compose.override.yml
+
+# Visual Studio Code
+.vscode/
+.idea/
+*.iml
+
+# Python packaging
+Pipfile
+Pipfile.lock
+poetry.lock

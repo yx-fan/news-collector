@@ -19,6 +19,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'fetch-rss-every-hour': {
         'task': 'news.tasks.fetch_rss',  # task name
-        'schedule': crontab(minute='*', hour='*'),  # every minute
+        'schedule': crontab(minute=0, hour='*/1'),  # every hour
     }
 }

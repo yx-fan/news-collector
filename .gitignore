@@ -1,6 +1,7 @@
 # Ignore file for Django projects
 db.sqlite3
 devdoc
+celerybeat-schedule
 
 # Python cache
 __pycache__/

@@ -1,28 +1,36 @@
 import feedparser
 import pytz
+import time
 from datetime import datetime
+from newspaper import Article  # ✅ Added for fetching full article content
 from .models import News
 from .rss_sources import RSS_FEEDS
 
 def parse_rss():
     for source, url in RSS_FEEDS.items():
-        feed = feedparser.parse(url) # Obtain the feed data
+        feed = feedparser.parse(url)  # Fetch RSS data
 
         for entry in feed.entries:
             print(f"Get news {entry.get('title', 'No Title')} from {source}")
             title = entry.get("title", "No Title")
             link = entry.get("link", "")
 
-            # Get the published time
+            # Parse published time
             published_at = parse_published_time(source, entry)
-
-            # Get the summary
+            
+            # Parse summary
             summary = parse_summary(source, entry)
-
-            # Get the source name
+            
+            # Parse source name
             source_name = parse_source_name(source, entry)
+            
+            # Fetch full article content
+            content = fetch_full_article(link)
+            
+            # Auto-categorize news
+            category = categorize_news(title, summary, content)
 
-            # Save the news to the database
+            # Save news to the database
             News.objects.update_or_create(
                 url=link,
                 defaults={
@@ -30,12 +38,14 @@ def parse_rss():
                     "source": source_name,
                     "published_at": published_at,
                     "summary": summary,
+                    "content": content,
+                    "category": category,
                 }
             )
 
     print("✅ RSS parsing and saving completed.")
 
-# Parse the published time
+# Parse published time
 def parse_published_time(source, entry):
     published = entry.get("published", "")
     try:
@@ -44,25 +54,45 @@ def parse_published_time(source, entry):
         elif source == "CNBC":
             dt = datetime.strptime(published, "%a, %d %b %Y %H:%M:%S %Z")
         else:
-            dt = datetime.now() # Add more cases if needed
-        
-        # Convert the datetime to UTC
-        return dt.replace(tzinfo=pytz.utc)
-
+            dt = datetime.now()  # Default case
+        return dt.replace(tzinfo=pytz.utc)  # Convert to UTC
     except Exception:
         return datetime.now().replace(tzinfo=pytz.utc)
 
-# Parse the summary
+# Parse summary
 def parse_summary(source, entry):
-    if source == "Yahoo Finance":
-        return entry.get("summary", "No summary available.")
-    elif source == "CNBC":
-        return entry.get("summary", "No summary available.")
-    else:
-        return entry.get("summary", "") # Add more cases if needed
+    return entry.get("summary", "No summary available.")
 
-# Parse the source name
+# Parse source name
 def parse_source_name(source, entry):
     if "source" in entry and isinstance(entry["source"], dict):
         return entry["source"].get("title", source)
     return source
+
+# Fetch full article content using newspaper3k
+def fetch_full_article(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text if article.text else "No content available."
+    except Exception as e:
+        print(f"❌ Failed to fetch content for {url}: {e}")
+        return "No content available."
+
+# Auto-categorize news
+def categorize_news(title, summary, content):
+    keywords = {
+        "market": ["stock market", "S&P 500", "Nasdaq", "Dow Jones"],
+        "crypto": ["Bitcoin", "Ethereum", "crypto", "blockchain"],
+        "stocks": ["shares", "earnings", "IPO", "dividends"],
+        "economy": ["GDP", "inflation", "interest rates", "Federal Reserve"],
+    }
+    text = f"{title} {summary} {content}".lower()
+    
+    for category, words in keywords.items():
+        if any(word in text for word in words):
+            return category 
+    return "market"  # Default category
+
+print("✅ RSS Parser with newspaper3k Ready!")

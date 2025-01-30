@@ -1,6 +1,8 @@
 from djongo import models
+from bson import ObjectId
 
 class News(models.Model):
+    _id = models.ObjectIdField(default=ObjectId, primary_key=True)
     title = models.CharField(max_length=255)
     url = models.URLField(unique=True)
     source = models.CharField(max_length=100)

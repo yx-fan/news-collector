@@ -1,0 +1,59 @@
+version: '3'
+
+services:
+  finance-news:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MONGO_HOST=mongodb://host.docker.internal:27017/
+    networks:
+      - backend
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  celery-fetch-rss-and-parse:
+    build: .
+    command: celery -A finance_news.celery worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - finance-news
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MONGO_HOST=mongodb://host.docker.internal:27017/
+    networks:
+      - backend
+
+  celery-fetch-rss-and-parse-beat:
+    build: .
+    command: celery -A finance_news.celery beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - finance-news
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - MONGO_HOST=mongodb://host.docker.internal:27017/
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

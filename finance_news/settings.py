@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,7 +81,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'NAME': 'finance_news_db',
         'CLIENT': {
-            'host': 'mongodb://localhost:27017/',
+            'host': os.getenv('MONGO_HOST', 'mongodb://localhost:27017/'),
             'username': '',
             'password': '',
         }
@@ -128,3 +129,10 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery configuration
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')  # broker URL
+CELERY_ACCEPT_CONTENT = ['json']  # only accept json data
+CELERY_TASK_SERIALIZER = 'json'  # serialize data to json
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')  # result backend URL
+CELERY_TIMEZONE = 'UTC'  # timezone

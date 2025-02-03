@@ -23,6 +23,11 @@ To set up the environment, follow these steps:
     pip install -r requirements.txt
     ```
 
+4. **Initialize the application:**
+    ```sh
+    python initialize.py
+    ```
+
 ## Running the Application
 
 1. **Apply database migrations:**

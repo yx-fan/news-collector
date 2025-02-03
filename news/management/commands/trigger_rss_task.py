@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from news.rss_parser import parse_rss
+from news.services.rss_parser import parse_rss
 
 # Create a custom management command to fetch RSS feed
 class Command(BaseCommand):

@@ -1,5 +1,5 @@
 from celery import shared_task
-from news.rss_parser import parse_rss
+from news.services.rss_parser import parse_rss
 
 @shared_task
 def fetch_rss():

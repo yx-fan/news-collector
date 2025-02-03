@@ -2,6 +2,7 @@
 db.sqlite3
 devdoc
 celerybeat-schedule
+models/
 
 # Python cache
 __pycache__/

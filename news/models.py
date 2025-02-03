@@ -2,19 +2,24 @@ from djongo import models
 from bson import ObjectId
 
 class News(models.Model):
-    _id = models.ObjectIdField(default=ObjectId, primary_key=True)
-    title = models.CharField(max_length=255)
-    url = models.URLField(unique=True)
-    source = models.CharField(max_length=100)
-    published_at = models.DateTimeField()
-    summary = models.TextField()
-    content = models.TextField(null=True, blank=True)
+    url = models.URLField(unique=True, primary_key=True, blank=False, null=False)
+    title = models.CharField(max_length=255, blank=False, null=False)
+    source = models.CharField(max_length=100, blank=False, null=False)
     category = models.CharField(max_length=50, choices=[
         ("market", "Market"),
         ("crypto", "Crypto"),
         ("stocks", "Stocks"),
         ("economy", "Economy"),
-    ])
+    ], blank=False, null=False)
+    published_at = models.DateTimeField(blank=False, null=False)
+
+    summary = models.TextField(null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+
+    # New fields for sentiment analysis
+    sentiment_score = models.FloatField(null=True, blank=True)
+    companies = models.JSONField(null=True, blank=True)
+    industries = models.JSONField(null=True, blank=True)
 
     class Meta:
         ordering = ["-published_at"]

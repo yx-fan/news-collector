@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .sentiment import analyze_sentiment
+from .services.sentiment import analyze_sentiment
 
 class SentimentAnalysisTest(TestCase):
     def test_positive_sentiment(self):

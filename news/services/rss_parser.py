@@ -35,6 +35,8 @@ def parse_rss():
             # Auto-categorize news
             category = categorize_news(title, summary, content)
 
+            # print(f"Saving news: title={title}, source={source_name}, published_at={published_at}, summary={summary}, content={content}, category={category}")
+
             # Save news to the database
             news, created = News.objects.update_or_create(
                 url=link,
@@ -45,6 +47,9 @@ def parse_rss():
                     "summary": summary,
                     "content": content,
                     "category": category,
+                    "sentiment_score": None,
+                    "companies": [],
+                    "industries": [],
                 }
             )
 

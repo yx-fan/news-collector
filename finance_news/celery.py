@@ -22,3 +22,13 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour='*/1'),  # every hour
     }
 }
+
+# run fetch_rss task immediately after starting Celery Beat
+from news.tasks.rss_tasks import fetch_rss_task
+from celery.signals import worker_ready
+
+@worker_ready.connect
+def setup_periodic_tasks(sender, **kwargs):
+    print("🚀 Celery started, running fetch_rss immediately...")
+    fetch_rss_task.delay()
+

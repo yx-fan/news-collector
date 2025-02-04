@@ -136,3 +136,4 @@ CELERY_ACCEPT_CONTENT = ['json']  # only accept json data
 CELERY_TASK_SERIALIZER = 'json'  # serialize data to json
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')  # result backend URL
 CELERY_TIMEZONE = 'UTC'  # timezone
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

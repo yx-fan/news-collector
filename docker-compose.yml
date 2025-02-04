@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   finance-news:
     build: .
@@ -19,8 +17,10 @@ services:
 
   redis:
     image: redis:latest
+    command: redis-server --appendonly yes --save "" --protected-mode no
     ports:
       - "6379:6379"
+    restart: always
     networks:
       - backend
 

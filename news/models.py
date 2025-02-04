@@ -18,8 +18,8 @@ class News(models.Model):
 
     # New fields for sentiment analysis
     sentiment_score = models.FloatField(null=True, blank=True)
-    companies = models.JSONField(null=True, blank=True)
-    industries = models.JSONField(null=True, blank=True)
+    companies = models.JSONField(default=list, blank=True)
+    industries = models.JSONField(default=list, blank=True)
 
     class Meta:
         ordering = ["-published_at"]

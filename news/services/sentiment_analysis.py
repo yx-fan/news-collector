@@ -1,7 +1,8 @@
+import os
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch.nn.functional as F
-import os
+from news.models import News
 
 # Load the pre-trained model and tokenizer, automatically download the model from Hugging Face
 # if it's not already downloaded. The model is cached in the `./models` directory.
@@ -36,3 +37,18 @@ def analyze_sentiment(text):
     print(f"Sentiment score: {sentiment_score}")
 
     return sentiment_score
+
+def analyze_news_sentiment(news_url):
+    """
+    Process the news article.
+    """
+    news = News.objects.get(url=news_url)
+
+    if news.content != "No content available.":
+        news.sentiment_score = analyze_sentiment(news.content)
+    elif news.summary != "No summary available.":
+        news.sentiment_score = analyze_sentiment(news.summary)
+    else:
+        news.sentiment_score = analyze_sentiment(news.title)
+
+    news.save()

@@ -1,10 +1,15 @@
+import os
 import feedparser
 import pytz
 import time
 from datetime import datetime
-from newspaper import Article  # ✅ Added for fetching full article content
-from .models import News
+from newspaper import Article  # Added for fetching full article content
+from news.models import News
+from news.tasks.sentiment_tasks import analyze_news_sentiment_task
 from .rss_sources import RSS_FEEDS
+from .sentiment_analysis import analyze_news_sentiment
+
+USE_CELERY = os.getenv("USE_CELERY", "False").lower() == "true"
 
 def parse_rss():
     for source, url in RSS_FEEDS.items():
@@ -31,7 +36,7 @@ def parse_rss():
             category = categorize_news(title, summary, content)
 
             # Save news to the database
-            News.objects.update_or_create(
+            news, created = News.objects.update_or_create(
                 url=link,
                 defaults={
                     "title": title,
@@ -42,6 +47,18 @@ def parse_rss():
                     "category": category,
                 }
             )
+
+            print(f"✅ News {news.title} saved to the database.")
+            print("created", created)
+
+            # Trigger sentiment analysis task
+            if created:
+                if USE_CELERY:
+                    print(f"ℹ️ Triggering sentiment analysis task for {news.url}")
+                    analyze_news_sentiment_task.delay(news.url)
+                else:
+                    print(f"ℹ️ Processing news {news.url}")
+                    analyze_news_sentiment(news.url)
 
     print("✅ RSS parsing and saving completed.")
 

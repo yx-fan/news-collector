@@ -18,7 +18,7 @@ class News(models.Model):
     content = models.TextField(blank=True)
 
     # New fields for sentiment analysis
-    sentiment_score = models.FloatField(blank=True)
+    sentiment_score = models.FloatField(default=None, blank=True)
     companies = models.JSONField(default=list, blank=True)
     industries = models.JSONField(default=list, blank=True)
 

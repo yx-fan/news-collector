@@ -9,7 +9,7 @@ from news.tasks.sentiment_tasks import analyze_news_sentiment_task
 from .rss_sources import RSS_FEEDS
 from .sentiment_analysis import analyze_news_sentiment
 
-USE_CELERY = os.getenv("USE_CELERY", "False").lower() == "true"
+USE_CELERY = os.getenv("USE_CELERY", "True").lower() == "true"
 
 def parse_rss():
     for source, url in RSS_FEEDS.items():
@@ -37,24 +37,45 @@ def parse_rss():
 
             # print(f"Saving news: title={title}, source={source_name}, published_at={published_at}, summary={summary}, content={content}, category={category}")
 
-            # Save news to the database
-            news, created = News.objects.update_or_create(
-                url=link,
-                defaults={
-                    "title": title,
-                    "source": source_name,
-                    "published_at": published_at,
-                    "summary": summary,
-                    "content": content,
-                    "category": category,
-                    "sentiment_score": None,
-                    "companies": [],
-                    "industries": [],
-                }
-            )
+            # check if news already exists
+            news = News.objects.filter(url=link).first()
+            created = False
 
-            print(f"✅ News {news.title} saved to the database.")
-            print("created", created)
+            if news:
+                print(f"ℹ️ News {news.title} already exists in the database.")
+                if news.summary == "No summary available." and summary != "No summary available.":  # Update summary
+                    news.summary = summary
+                    news.published_at = published_at
+                    news.save()
+                    print("✅ Summary updated.")
+                if news.content == "No content available." and content != "No content available.":  # Update content
+                    news.content = content
+                    news.published_at = published_at
+                    news.save()
+                    print("✅ Content updated.")
+                if news.sentiment_score is None:
+                    if USE_CELERY:
+                        print(f"ℹ️ Triggering sentiment analysis task for {news.url}")
+                        analyze_news_sentiment_task.delay(news.url)
+                    else:
+                        print(f"ℹ️ Processing news {news.url}")
+                        analyze_news_sentiment(news.url)
+            else:
+                # Create a new news object
+                news = News(
+                    url=link,
+                    title=title,
+                    source=source_name,
+                    category=category,
+                    published_at=published_at,
+                    summary=summary,
+                    content=content,
+                    sentiment_score=None,
+                    companies=[],
+                    industries=[],
+                )
+                news.save()
+                created = True
 
             # Trigger sentiment analysis task
             if created:

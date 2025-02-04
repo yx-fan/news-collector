@@ -18,7 +18,7 @@ app.autodiscover_tasks()
 # configure periodic tasks (Celery Beat configuration)
 app.conf.beat_schedule = {
     'fetch-rss-every-hour': {
-        'task': 'news.tasks.fetch_rss',
+        'task': 'news.tasks.rss_tasks.fetch_rss_task',
         'schedule': crontab(minute=0, hour='*/1'),  # every hour
     }
 }

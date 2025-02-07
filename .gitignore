@@ -3,6 +3,10 @@ db.sqlite3
 devdoc
 celerybeat-schedule
 models/
+# Ignore Docker volumes
+volumes/
+# Ignore Docker logs
+logs/
 
 # Python cache
 __pycache__/

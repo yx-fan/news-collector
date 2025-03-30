@@ -1,6 +1,6 @@
 # news-collector
 
-A Django-based application for collecting and processing news from various sources.
+A Django-based application for collecting and processing news from RSS resources.
 
 # Environment Settings
 

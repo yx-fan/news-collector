@@ -1,6 +1,7 @@
 # news-collector
 
 A Django-based application for collecting and processing news from RSS resources.
+The goal is to collect news and identify the influence on stock market.
 
 # Environment Settings
 
